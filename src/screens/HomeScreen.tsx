@@ -242,9 +242,9 @@ export function HomeScreen({ navigation }: any) {
                 onPress={() => { setMenuVisible(false); navigation.navigate('InteractiveMap'); }}
               >
                 <View style={styles.menuIconBox}>
-                  <Ionicons name="globe-outline" size={22} color="#94A3B8" />
+                  <Ionicons name="stats-chart-outline" size={22} color="#94A3B8" />
                 </View>
-                <Text style={styles.menuItemText}>Mapa Interativo</Text>
+                <Text style={styles.menuItemText}>Gráfico Interativo</Text>
               </TouchableOpacity>
 
               <TouchableOpacity 

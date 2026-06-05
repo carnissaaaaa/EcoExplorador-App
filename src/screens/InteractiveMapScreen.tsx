@@ -84,15 +84,9 @@ export function InteractiveMapScreen({ navigation }: any) {
   const [selectedBiomeId, setSelectedBiomeId] = useState<string>('amazonia');
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('territory');
   
-  // Animações do Painel de Detalhes e Progresso do Tour
+  // Animações do Painel de Detalhes
   const slideAnim = useRef(new Animated.Value(100)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  // Estados do Modo Tour (Eco-Tour)
-  const [isTourActive, setIsTourActive] = useState<boolean>(false);
-  const [isTourPaused, setIsTourPaused] = useState<boolean>(false);
-  const [tourStep, setTourStep] = useState<number>(0);
-  const tourProgress = useRef(new Animated.Value(0)).current;
 
   // Pulso contínuo para o bioma ativo no gráfico
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -197,82 +191,13 @@ export function InteractiveMapScreen({ navigation }: any) {
     Animated.parallel(animations).start();
   }, [selectedMetric]);
 
-  // Efeito do Progresso Automático do Tour
-  useEffect(() => {
-    if (isTourActive && !isTourPaused) {
-      tourProgress.setValue(0);
-      Animated.timing(tourProgress, {
-        toValue: 1,
-        duration: 6000, // 6 segundos de exibição por bioma
-        easing: Easing.linear,
-        useNativeDriver: false
-      }).start(({ finished }) => {
-        if (finished) {
-          const nextStep = (tourStep + 1) % mapPins.length;
-          setTourStep(nextStep);
-          setSelectedBiomeId(mapPins[nextStep].id);
-        }
-      });
-    } else {
-      tourProgress.stopAnimation();
-    }
-
-    return () => {
-      tourProgress.stopAnimation();
-    };
-  }, [isTourActive, isTourPaused, tourStep]);
-
-  const toggleTourMode = () => {
-    if (isTourActive) {
-      handleStopTour();
-    } else {
-      setIsTourActive(true);
-      setIsTourPaused(false);
-      setTourStep(0);
-      setSelectedBiomeId(mapPins[0].id);
-    }
-  };
-
-  const handleStopTour = () => {
-    setIsTourActive(false);
-    setIsTourPaused(false);
-    tourProgress.setValue(0);
-  };
-
-  const handleTourPlayPause = () => {
-    setIsTourPaused(!isTourPaused);
-  };
-
-  const handleTourNext = () => {
-    const nextStep = (tourStep + 1) % mapPins.length;
-    setTourStep(nextStep);
-    setSelectedBiomeId(mapPins[nextStep].id);
-  };
-
-  const handleTourPrev = () => {
-    const prevStep = (tourStep - 1 + mapPins.length) % mapPins.length;
-    setTourStep(prevStep);
-    setSelectedBiomeId(mapPins[prevStep].id);
-  };
-
   const handleSelectBiome = (id: string) => {
     setSelectedBiomeId(id);
-    if (isTourActive) {
-      const index = mapPins.findIndex(p => p.id === id);
-      if (index !== -1) {
-        setTourStep(index);
-      }
-    }
   };
 
   const handleExploreMore = () => {
     navigation.navigate('BiomeDetails', { biomeId: selectedBiomeId });
   };
-
-  const progressBarWidth = tourProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0%', '100%']
-  });
 
   const chartItems = [
     { id: 'amazonia', name: 'Amazônia', icon: 'leaf', color: '#10B981' },
@@ -290,34 +215,13 @@ export function InteractiveMapScreen({ navigation }: any) {
         <TouchableOpacity style={styles.headerBackButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Análise de Biomas</Text>
-        <TouchableOpacity 
-          style={[styles.headerTourButton, isTourActive && styles.headerTourButtonActive]} 
-          onPress={toggleTourMode}
-          activeOpacity={0.7}
-        >
-          <Ionicons 
-            name={isTourActive ? "stop-circle" : "play-circle"} 
-            size={24} 
-            color={isTourActive ? "#10B981" : "#FFFFFF"} 
-          />
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Gráfico Interativo</Text>
+        <View style={{ width: 40 }} />
       </View>
 
       {/* Conteiner do Gráfico */}
       <View style={styles.mapContainer}>
-        {/* Badge do Tour ou Guia explicativo */}
-        {isTourActive ? (
-          <View style={styles.tourBadge}>
-            <View style={styles.tourBadgeDot} />
-            <Text style={styles.tourBadgeText}>
-              Eco-Tour Ativo: {tourStep + 1} de {mapPins.length}
-            </Text>
-            {isTourPaused && <Text style={styles.tourPausedText}> (Pausado)</Text>}
-          </View>
-        ) : (
-          <Text style={styles.mapHint}>Selecione um bioma no gráfico para comparar</Text>
-        )}
+        <Text style={styles.mapHint}>Selecione um bioma no gráfico para comparar</Text>
 
         {/* Gráfico Comparativo */}
         <View style={styles.chartWrapper}>
@@ -426,13 +330,6 @@ export function InteractiveMapScreen({ navigation }: any) {
         styles.detailsPanel, 
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
       ]}>
-        {/* Barra de Progresso do Tour */}
-        {isTourActive && (
-          <View style={styles.progressBarBg}>
-            <Animated.View style={[styles.progressBarFill, { width: progressBarWidth }]} />
-          </View>
-        )}
-
         <View style={styles.panelHeader}>
           <View>
             <Text style={styles.panelTitle}>{activePin.name}</Text>
@@ -457,44 +354,14 @@ export function InteractiveMapScreen({ navigation }: any) {
           </View>
         </View>
 
-        {/* Linha de botões de ação / controles */}
-        <View style={styles.actionButtonsRow}>
-          {isTourActive ? (
-            <View style={styles.tourControlsContainer}>
-              {/* Botões do Tour */}
-              <View style={styles.tourNavControls}>
-                <TouchableOpacity style={styles.tourMiniBtn} onPress={handleTourPrev} activeOpacity={0.7}>
-                  <Ionicons name="play-skip-back" size={18} color="#FFFFFF" />
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.tourMiniBtn, styles.tourMiniBtnActive]} onPress={handleTourPlayPause} activeOpacity={0.7}>
-                  <Ionicons name={isTourPaused ? "play" : "pause"} size={18} color="#FFFFFF" />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.tourMiniBtn} onPress={handleTourNext} activeOpacity={0.7}>
-                  <Ionicons name="play-skip-forward" size={18} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-              
-              {/* Botão Explorar Menor */}
-              <TouchableOpacity 
-                style={styles.exploreMiniButton} 
-                onPress={handleExploreMore}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.exploreMiniButtonText}>Explorar</Text>
-                <Ionicons name="chevron-forward" size={14} color="#FFFFFF" />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity 
-              style={styles.exploreButton} 
-              onPress={handleExploreMore}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.exploreButtonText}>Explorar Conteúdo Completo</Text>
-              <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
-            </TouchableOpacity>
-          )}
-        </View>
+        <TouchableOpacity 
+          style={styles.exploreButton} 
+          onPress={handleExploreMore}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.exploreButtonText}>Explorar Conteúdo Completo</Text>
+          <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+        </TouchableOpacity>
       </Animated.View>
     </SafeAreaView>
   );
