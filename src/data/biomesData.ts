@@ -30,7 +30,7 @@ export const biomesData: Record<string, Biome> = {
       "O Rio Amazonas é o maior rio do mundo em volume de água.",
       "A floresta amazônica produz cerca de 20% do oxigênio da Terra."
     ],
-    image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=800&auto=format&fit=crop",
+    image: "https://www.gov.br/mma/pt-br/assuntos/noticias/no-dia-da-amazonia-conheca-curiosidades-da-maior-floresta-tropical-do-mundo-e-acoes-que-unem-preservacao-e-desenvolvimento/parna_juruena_adriano-gambarini-c-1100x777.jpg",
     deforestationRate: 21
   },
   caatinga: {
@@ -46,7 +46,7 @@ export const biomesData: Record<string, Biome> = {
       "Muitas plantas da Caatinga perdem as folhas na estação seca para economizar água.",
       "A palavra 'Caatinga' significa 'mata branca' em tupi, referindo-se à paisagem seca."
     ],
-    image: "https://images.unsplash.com/photo-1590418606746-018840f9cd0f?q=80&w=800&auto=format&fit=crop",
+    image: "https://blog.123milhas.com/wp-content/uploads/2023/04/Veja-cinco-lugares-para-conhecer-a-Caatinga-caatinga-paraiba-Conexao123.jpg",
     deforestationRate: 45
   },
   cerrado: {
@@ -62,7 +62,7 @@ export const biomesData: Record<string, Biome> = {
       "Suas árvores possuem cascas grossas e raízes profundas para resistir ao fogo e buscar água.",
       "Abriga nascentes de importantes rios brasileiros, como os que formam as bacias do Paraná, Tocantins e São Francisco."
     ],
-    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800&auto=format&fit=crop",
+    image: "https://matanativa.com.br/wp-content/uploads/2019/07/Design-sem-nome-2.png",
     deforestationRate: 52
   },
   "mata-atlantica": {
@@ -104,7 +104,7 @@ export const biomesData: Record<string, Biome> = {
       "Sua paisagem é dominada por campos abertos e coxilhas (pequenas colinas).",
       "É um importante corredor para aves migratórias e abriga espécies ameaçadas como o veado-campeiro."
     ],
-    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800&auto=format&fit=crop",
+    image: "https://www.gov.br/turismo/pt-br/assuntos/noticias/pampa-o-bioma-do-rio-grande-do-sul/02.06.23BageRsMturdestinos.jpg/@@images/bf904178-754d-4115-bdd9-3b44b1484ff7.jpeg",
     deforestationRate: 54
   },
   pantanal: {
@@ -120,7 +120,7 @@ export const biomesData: Record<string, Biome> = {
       "A cada ano, grandes áreas são inundadas, criando um ecossistema dinâmico e rico em vida aquática.",
       "Abriga a maior concentração de vida selvagem da América do Sul, sendo um paraíso para observadores de aves e mamíferos."
     ],
-    image: "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=800&auto=format&fit=crop",
+    image: "https://www.mombora.com.br/cdn/shop/articles/bioma-pantanal-1_1024x1024.webp?v=1740752983",
     deforestationRate: 17
   }
 };
