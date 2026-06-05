@@ -118,19 +118,17 @@ export function HomeScreen({ navigation }: any) {
             </View>
           </View>
 
-          {/* Seção de Resumo/Dashboard */}
+          {/* Seção de Curiosidade / Fato Ecológico */}
           <View style={styles.dashboardContainer}>
-            <Text style={styles.sectionTitle}>Status Ecológico</Text>
+            <Text style={styles.sectionTitle}>Você Sabia?</Text>
 
-            <View style={styles.statsRow}>
-              <View style={[styles.statCard, styles.statCardPrimary]}>
-                <Text style={styles.statNumber}>6</Text>
-                <Text style={styles.statLabel}>Biomas Nacionais</Text>
+            <View style={styles.factCard}>
+              <View style={styles.factIconBox}>
+                <Ionicons name="bulb-outline" size={24} color="#34D399" />
               </View>
-              <View style={[styles.statCard, styles.statCardSecondary]}>
-                <Text style={styles.statNumber}>100%</Text>
-                <Text style={styles.statLabel}>Riqueza Natural</Text>
-              </View>
+              <Text style={styles.factText}>
+                A Caatinga é o único bioma 100% exclusivamente brasileiro, e cerca de 1/3 de suas espécies de plantas não existem em nenhum outro lugar do mundo!
+              </Text>
             </View>
           </View>
 
@@ -394,41 +392,31 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     letterSpacing: -0.5,
   },
-  statsRow: {
+  factCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  statCard: {
-    flex: 1,
-    padding: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
     borderRadius: 20,
     borderWidth: 1,
+    borderColor: 'rgba(52, 211, 153, 0.25)',
+    padding: 16,
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  statCardPrimary: {
-    backgroundColor: 'rgba(16, 185, 129, 0.12)',
-    marginRight: 8,
-    borderColor: 'rgba(16, 185, 129, 0.25)',
+  factIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: 'rgba(52, 211, 153, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
   },
-  statCardSecondary: {
-    backgroundColor: 'rgba(5, 150, 105, 0.12)',
-    marginLeft: 8,
-    borderColor: 'rgba(5, 150, 105, 0.25)',
-  },
-  statNumber: {
+  factText: {
+    flex: 1,
     fontFamily: customFont,
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontFamily: customFont,
-    fontSize: 11,
     color: '#E2E8F0',
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontSize: 13,
+    lineHeight: 18,
   },
   biomesContainer: {
     paddingHorizontal: 20,
