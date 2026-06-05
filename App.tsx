@@ -5,6 +5,7 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { BiomeDetailsScreen } from './src/screens/BiomeDetailsScreen';
 import { InteractiveMapScreen } from './src/screens/InteractiveMapScreen';
+import { PreservationScreen } from './src/screens/PreservationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -21,6 +22,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="BiomeDetails" component={BiomeDetailsScreen} />
         <Stack.Screen name="InteractiveMap" component={InteractiveMapScreen} />
+        <Stack.Screen name="Preservation" component={PreservationScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

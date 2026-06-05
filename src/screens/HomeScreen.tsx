@@ -216,7 +216,10 @@ export function HomeScreen({ navigation }: any) {
                 <Text style={styles.menuItemText}>Mapa Interativo</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem} onPress={handleDevFeature}>
+              <TouchableOpacity 
+                style={styles.menuItem} 
+                onPress={() => { setMenuVisible(false); navigation.navigate('Preservation'); }}
+              >
                 <View style={styles.menuIconBox}>
                   <Ionicons name="shield-checkmark-outline" size={22} color="#94A3B8" />
                 </View>
