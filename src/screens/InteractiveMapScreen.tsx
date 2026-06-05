@@ -136,7 +136,7 @@ export function InteractiveMapScreen({ navigation }: any) {
         {/* Moldura do Mapa do Brasil */}
         <View style={styles.mapWrapper}>
           <Image 
-            source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Brazil_Biomes_Map.svg/800px-Brazil_Biomes_Map.svg.png' }} 
+            source={require('../../assets/brazil_biomes_map.png')} 
             style={styles.mapBackground} 
             resizeMode="contain"
           />
