@@ -78,112 +78,13 @@ const mapPins: MapPin[] = [
   }
 ];
 
-interface MapRegion {
-  id: string;
-  name: string;
-  top: any;
-  left: any;
-  width: any;
-  height: any;
-  borderRadius: number;
-  percentage: string;
-  icon: any;
-  activeColor: string;
-  inactiveColor: string;
-  glowColor: string;
-}
-
-const mapRegions: MapRegion[] = [
-  {
-    id: 'amazonia',
-    name: 'Amazônia',
-    top: '4%',
-    left: '4%',
-    width: '46%',
-    height: '42%',
-    borderRadius: 30,
-    percentage: '49.3%',
-    icon: 'leaf',
-    activeColor: 'rgba(16, 185, 129, 0.22)',
-    inactiveColor: 'rgba(16, 185, 129, 0.04)',
-    glowColor: '#10B981',
-  },
-  {
-    id: 'caatinga',
-    name: 'Caatinga',
-    top: '10%',
-    left: '56%',
-    width: '38%',
-    height: '28%',
-    borderRadius: 24,
-    percentage: '9.9%',
-    icon: 'sunny',
-    activeColor: 'rgba(245, 158, 11, 0.22)',
-    inactiveColor: 'rgba(245, 158, 11, 0.04)',
-    glowColor: '#F59E0B',
-  },
-  {
-    id: 'cerrado',
-    name: 'Cerrado',
-    top: '42%',
-    left: '26%',
-    width: '38%',
-    height: '32%',
-    borderRadius: 28,
-    percentage: '23.9%',
-    icon: 'partly-sunny',
-    activeColor: 'rgba(234, 179, 8, 0.22)',
-    inactiveColor: 'rgba(234, 179, 8, 0.04)',
-    glowColor: '#EAB308',
-  },
-  {
-    id: 'mata-atlantica',
-    name: 'Mata Atlântica',
-    top: '44%',
-    left: '68%',
-    width: '26%',
-    height: '34%',
-    borderRadius: 20,
-    percentage: '13.0%',
-    icon: 'rainy',
-    activeColor: 'rgba(5, 150, 105, 0.22)',
-    inactiveColor: 'rgba(5, 150, 105, 0.04)',
-    glowColor: '#059669',
-  },
-  {
-    id: 'pantanal',
-    name: 'Pantanal',
-    top: '52%',
-    left: '4%',
-    width: '18%',
-    height: '18%',
-    borderRadius: 18,
-    percentage: '1.8%',
-    icon: 'water',
-    activeColor: 'rgba(6, 182, 212, 0.22)',
-    inactiveColor: 'rgba(6, 182, 212, 0.04)',
-    glowColor: '#06B6D4',
-  },
-  {
-    id: 'pampa',
-    name: 'Pampa',
-    top: '78%',
-    left: '34%',
-    width: '24%',
-    height: '18%',
-    borderRadius: 16,
-    percentage: '2.1%',
-    icon: 'flower',
-    activeColor: 'rgba(132, 204, 22, 0.22)',
-    inactiveColor: 'rgba(132, 204, 22, 0.04)',
-    glowColor: '#84CC16',
-  }
-];
+type MetricType = 'territory' | 'deforestation' | 'preservation';
 
 export function InteractiveMapScreen({ navigation }: any) {
   const [selectedBiomeId, setSelectedBiomeId] = useState<string>('amazonia');
+  const [selectedMetric, setSelectedMetric] = useState<MetricType>('territory');
   
-  // Animações do Painel de Detalhes e Pins
+  // Animações do Painel de Detalhes e Progresso do Tour
   const slideAnim = useRef(new Animated.Value(100)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -193,25 +94,66 @@ export function InteractiveMapScreen({ navigation }: any) {
   const [tourStep, setTourStep] = useState<number>(0);
   const tourProgress = useRef(new Animated.Value(0)).current;
 
-  // Pulso contínuo para o bioma ativo
+  // Pulso contínuo para o bioma ativo no gráfico
   const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  // Valores animados para cada uma das barras do gráfico
+  const barWidths = {
+    amazonia: useRef(new Animated.Value(0.493)).current,
+    caatinga: useRef(new Animated.Value(0.099)).current,
+    cerrado: useRef(new Animated.Value(0.239)).current,
+    'mata-atlantica': useRef(new Animated.Value(0.130)).current,
+    pantanal: useRef(new Animated.Value(0.018)).current,
+    pampa: useRef(new Animated.Value(0.021)).current,
+  };
+
+  const getMetricValue = (biomeId: string, metric: MetricType) => {
+    switch (metric) {
+      case 'territory':
+        if (biomeId === 'amazonia') return 0.493;
+        if (biomeId === 'caatinga') return 0.099;
+        if (biomeId === 'cerrado') return 0.239;
+        if (biomeId === 'mata-atlantica') return 0.130;
+        if (biomeId === 'pantanal') return 0.018;
+        if (biomeId === 'pampa') return 0.021;
+        return 0;
+      case 'deforestation':
+        if (biomeId === 'amazonia') return 0.21;
+        if (biomeId === 'caatinga') return 0.45;
+        if (biomeId === 'cerrado') return 0.52;
+        if (biomeId === 'mata-atlantica') return 0.88;
+        if (biomeId === 'pantanal') return 0.17;
+        if (biomeId === 'pampa') return 0.54;
+        return 0;
+      case 'preservation':
+        if (biomeId === 'amazonia') return 0.79;
+        if (biomeId === 'caatinga') return 0.55;
+        if (biomeId === 'cerrado') return 0.48;
+        if (biomeId === 'mata-atlantica') return 0.12;
+        if (biomeId === 'pantanal') return 0.83;
+        if (biomeId === 'pampa') return 0.46;
+        return 0;
+      default:
+        return 0;
+    }
+  };
 
   // Encontra os detalhes do bioma selecionado
   const activePin = mapPins.find(p => p.id === selectedBiomeId) || mapPins[0];
   const fullBiomeInfo = biomesData[selectedBiomeId];
 
-  // Efeito de pulso animado infinito
+  // Efeito de pulso animado infinito para destacar o item selecionado
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, {
-          toValue: 1.05,
+          toValue: 1.04,
           duration: 900,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true
         }),
         Animated.timing(pulseAnim, {
-          toValue: 0.97,
+          toValue: 0.98,
           duration: 900,
           easing: Easing.inOut(Easing.ease),
           useNativeDriver: true
@@ -220,9 +162,8 @@ export function InteractiveMapScreen({ navigation }: any) {
     ).start();
   }, []);
 
-  // Efeito de animação ao mudar o bioma selecionado
+  // Efeito de animação de entrada ao mudar o bioma selecionado
   useEffect(() => {
-    // Resetar e executar animação quando o bioma muda
     slideAnim.setValue(40);
     fadeAnim.setValue(0);
     
@@ -240,6 +181,21 @@ export function InteractiveMapScreen({ navigation }: any) {
       })
     ]).start();
   }, [selectedBiomeId]);
+
+  // Efeito de largura animada ao trocar a métrica selecionada
+  useEffect(() => {
+    const animations = Object.keys(barWidths).map((key) => {
+      const targetValue = getMetricValue(key, selectedMetric);
+      return Animated.timing((barWidths as any)[key], {
+        toValue: targetValue,
+        duration: 800,
+        easing: Easing.out(Easing.back(0.8)),
+        useNativeDriver: false // largura de layouts não aceita driver nativo
+      });
+    });
+
+    Animated.parallel(animations).start();
+  }, [selectedMetric]);
 
   // Efeito do Progresso Automático do Tour
   useEffect(() => {
@@ -318,6 +274,15 @@ export function InteractiveMapScreen({ navigation }: any) {
     outputRange: ['0%', '100%']
   });
 
+  const chartItems = [
+    { id: 'amazonia', name: 'Amazônia', icon: 'leaf', color: '#10B981' },
+    { id: 'caatinga', name: 'Caatinga', icon: 'sunny', color: '#F59E0B' },
+    { id: 'cerrado', name: 'Cerrado', icon: 'partly-sunny', color: '#EAB308' },
+    { id: 'mata-atlantica', name: 'Mata Atlântica', icon: 'rainy', color: '#059669' },
+    { id: 'pantanal', name: 'Pantanal', icon: 'water', color: '#06B6D4' },
+    { id: 'pampa', name: 'Pampa', icon: 'flower', color: '#84CC16' },
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
       {/* Header */}
@@ -325,7 +290,7 @@ export function InteractiveMapScreen({ navigation }: any) {
         <TouchableOpacity style={styles.headerBackButton} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Mapa de Biomas</Text>
+        <Text style={styles.headerTitle}>Análise de Biomas</Text>
         <TouchableOpacity 
           style={[styles.headerTourButton, isTourActive && styles.headerTourButtonActive]} 
           onPress={toggleTourMode}
@@ -339,84 +304,120 @@ export function InteractiveMapScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      {/* Conteiner do Mapa */}
+      {/* Conteiner do Gráfico */}
       <View style={styles.mapContainer}>
-        {/* Nome explicativo ou Badge do Tour */}
+        {/* Badge do Tour ou Guia explicativo */}
         {isTourActive ? (
           <View style={styles.tourBadge}>
             <View style={styles.tourBadgeDot} />
             <Text style={styles.tourBadgeText}>
-              Eco-Tour: {tourStep + 1} de {mapPins.length}
+              Eco-Tour Ativo: {tourStep + 1} de {mapPins.length}
             </Text>
             {isTourPaused && <Text style={styles.tourPausedText}> (Pausado)</Text>}
           </View>
         ) : (
-          <Text style={styles.mapHint}>Selecione um ponto no mapa para explorar</Text>
+          <Text style={styles.mapHint}>Selecione um bioma no gráfico para comparar</Text>
         )}
 
-        {/* Moldura do Mapa do Brasil (Mapa Geométrico Estilizado) */}
-        <View style={styles.mapWrapper}>
-          {/* Linhas de Grid do Radar/Tecnologia de Fundo */}
-          <View style={styles.mapGridLineH} />
-          <View style={[styles.mapGridLineH, { top: '50%' }]} />
-          <View style={[styles.mapGridLineH, { top: '75%' }]} />
-          <View style={styles.mapGridLineV} />
-          <View style={[styles.mapGridLineV, { left: '50%' }]} />
-          <View style={[styles.mapGridLineV, { left: '75%' }]} />
-          
-          {/* Renderização das Regiões Geométricas Interativas */}
-          {mapRegions.map((region) => {
-            const isSelected = region.id === selectedBiomeId;
-            return (
-              <TouchableOpacity
-                key={region.id}
-                style={[
-                  styles.biomeRegion, 
-                  { 
-                    top: region.top, 
-                    left: region.left, 
-                    width: region.width, 
-                    height: region.height,
-                    borderRadius: region.borderRadius,
-                    backgroundColor: isSelected ? region.activeColor : region.inactiveColor,
-                    borderColor: isSelected ? region.glowColor : 'rgba(255, 255, 255, 0.08)',
-                    opacity: isSelected ? 1 : 0.35,
-                  },
-                  isSelected && {
-                    shadowColor: region.glowColor,
-                    shadowOpacity: 0.9,
-                    shadowRadius: 20,
-                    elevation: 15,
-                    zIndex: 50,
-                  }
-                ]}
-                onPress={() => handleSelectBiome(region.id)}
-                activeOpacity={0.9}
-              >
-                <Animated.View style={[
-                  styles.regionContent,
-                  isSelected && { transform: [{ scale: pulseAnim }] }
-                ]}>
-                  <Ionicons 
-                    name={region.icon} 
-                    size={isSelected ? 22 : 16} 
-                    color={isSelected ? '#FFFFFF' : '#94A3B8'} 
-                  />
-                  <Text style={[
-                    styles.regionName, 
-                    isSelected ? styles.regionNameSelected : styles.regionNameInactive
+        {/* Gráfico Comparativo */}
+        <View style={styles.chartWrapper}>
+          {/* Cabeçalho de Métricas */}
+          <View style={styles.metricTabs}>
+            <TouchableOpacity 
+              style={[styles.metricTab, selectedMetric === 'territory' && styles.metricTabActive]}
+              onPress={() => setSelectedMetric('territory')}
+            >
+              <Text style={[styles.metricTabText, selectedMetric === 'territory' && styles.metricTabTextActive]}>
+                Território
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.metricTab, selectedMetric === 'deforestation' && styles.metricTabActive]}
+              onPress={() => setSelectedMetric('deforestation')}
+            >
+              <Text style={[styles.metricTabText, selectedMetric === 'deforestation' && styles.metricTabTextActive]}>
+                Desmate
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.metricTab, selectedMetric === 'preservation' && styles.metricTabActive]}
+              onPress={() => setSelectedMetric('preservation')}
+            >
+              <Text style={[styles.metricTabText, selectedMetric === 'preservation' && styles.metricTabTextActive]}>
+                Preservado
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Lista de Barras do Gráfico */}
+          <View style={styles.chartList}>
+            {chartItems.map((item) => {
+              const isSelected = item.id === selectedBiomeId;
+              const val = getMetricValue(item.id, selectedMetric);
+              const percentageText = `${(val * 100).toFixed(1)}%`;
+              
+              // Interpolamos a largura do Animated.Value para '%' de string
+              const animatedWidth = (barWidths as any)[item.id].interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%']
+              });
+
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={[
+                    styles.chartRow,
+                    isSelected && styles.chartRowSelected
+                  ]}
+                  onPress={() => handleSelectBiome(item.id)}
+                  activeOpacity={0.8}
+                >
+                  {/* Ícone e Nome do Bioma (Pulsa quando ativo) */}
+                  <Animated.View style={[
+                    styles.chartRowInfo,
+                    isSelected && { transform: [{ scale: pulseAnim }] }
                   ]}>
-                    {region.name}
-                  </Text>
-                  {isSelected && (
-                    <Text style={styles.regionPercentageText}>
-                      {region.percentage}
+                    <Ionicons 
+                      name={item.icon as any} 
+                      size={18} 
+                      color={isSelected ? '#FFFFFF' : item.color} 
+                      style={styles.chartRowIcon}
+                    />
+                    <Text style={[styles.chartRowName, isSelected && styles.chartRowNameActive]}>
+                      {item.name}
                     </Text>
-                  )}
-                </Animated.View>
-              </TouchableOpacity>
-            );
-          })}
+                  </Animated.View>
+
+                  {/* A Barra de Progresso */}
+                  <View style={styles.chartBarContainer}>
+                    <View style={styles.chartBarTrack}>
+                      <Animated.View style={[
+                        styles.chartBarFill, 
+                        { 
+                          width: animatedWidth, 
+                          backgroundColor: item.color,
+                        },
+                        isSelected && {
+                          shadowColor: item.color,
+                          shadowOpacity: 0.9,
+                          shadowRadius: 10,
+                          elevation: 6,
+                          borderWidth: 1,
+                          borderColor: '#FFFFFF',
+                        }
+                      ]} />
+                    </View>
+                    {/* Indicador Numérico */}
+                    <Text style={[styles.chartBarValue, isSelected && styles.chartBarValueActive]}>
+                      {percentageText}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
         </View>
       </View>
 
@@ -834,54 +835,107 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
-  biomeRegion: {
-    position: 'absolute',
-    borderWidth: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 6,
+  chartWrapper: {
+    width: '94%',
+    maxWidth: 380,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    padding: 16,
+    overflow: 'hidden',
   },
-  regionContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
+  metricTabs: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
   },
-  regionName: {
+  metricTab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  metricTabActive: {
+    backgroundColor: '#10B981',
+  },
+  metricTabText: {
     fontFamily: customFont,
-    fontSize: 10,
-    fontWeight: '800',
-    marginTop: 4,
-    textAlign: 'center',
-    letterSpacing: -0.2,
+    fontSize: 12,
+    color: '#94A3B8',
+    fontWeight: 'bold',
   },
-  regionNameSelected: {
+  metricTabTextActive: {
     color: '#FFFFFF',
   },
-  regionNameInactive: {
-    color: '#94A3B8',
+  chartList: {
+    width: '100%',
   },
-  regionPercentageText: {
+  chartRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginBottom: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  chartRowSelected: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  chartRowInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '32%',
+  },
+  chartRowIcon: {
+    marginRight: 8,
+  },
+  chartRowName: {
     fontFamily: customFont,
-    fontSize: 8,
-    color: 'rgba(255, 255, 255, 0.85)',
-    marginTop: 2,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#E2E8F0',
+  },
+  chartRowNameActive: {
+    color: '#FFFFFF',
+  },
+  chartBarContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  chartBarTrack: {
+    flex: 1,
+    height: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 4,
+    marginRight: 8,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  chartBarFill: {
+    height: '100%',
+    borderRadius: 4,
+  },
+  chartBarValue: {
+    fontFamily: customFont,
+    fontSize: 12,
     fontWeight: '800',
+    color: '#94A3B8',
+    width: 44,
+    textAlign: 'right',
   },
-  mapGridLineH: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: '25%',
-    height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
-  },
-  mapGridLineV: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: '25%',
-    width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  chartBarValueActive: {
+    color: '#FFFFFF',
   },
 });
