@@ -130,47 +130,49 @@ export function InteractiveMapScreen({ navigation }: any) {
 
       {/* Conteiner do Mapa */}
       <View style={styles.mapContainer}>
-        {/* Imagem de Fundo Estilizada - Representação da Região do Brasil */}
-        <Image 
-          source={{ uri: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=800&auto=format&fit=crop' }} 
-          style={styles.mapBackground} 
-        />
-        <View style={styles.mapOverlayFilter} />
-
         {/* Nome explicativo */}
         <Text style={styles.mapHint}>Selecione um ponto no mapa para explorar</Text>
 
-        {/* Renderização dos Pins Interativos */}
-        {mapPins.map((pin) => {
-          const isSelected = pin.id === selectedBiomeId;
-          return (
-            <TouchableOpacity
-              key={pin.id}
-              style={[
-                styles.pinTouchable, 
-                { top: pin.top, left: pin.left }
-              ]}
-              onPress={() => handleSelectBiome(pin.id)}
-              activeOpacity={0.8}
-            >
-              <View style={[styles.pinOuter, isSelected && styles.pinOuterSelected]}>
-                <View style={[styles.pinInner, isSelected && styles.pinInnerSelected]}>
-                  <Ionicons 
-                    name={isSelected ? "leaf" : "pin"} 
-                    size={isSelected ? 14 : 12} 
-                    color="#FFFFFF" 
-                  />
+        {/* Moldura do Mapa do Brasil */}
+        <View style={styles.mapWrapper}>
+          <Image 
+            source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Brazil_Biomes_Map.svg/800px-Brazil_Biomes_Map.svg.png' }} 
+            style={styles.mapBackground} 
+            resizeMode="contain"
+          />
+          
+          {/* Renderização dos Pins Interativos posicionados sobre o Mapa */}
+          {mapPins.map((pin) => {
+            const isSelected = pin.id === selectedBiomeId;
+            return (
+              <TouchableOpacity
+                key={pin.id}
+                style={[
+                  styles.pinTouchable, 
+                  { top: pin.top, left: pin.left }
+                ]}
+                onPress={() => handleSelectBiome(pin.id)}
+                activeOpacity={0.8}
+              >
+                <View style={[styles.pinOuter, isSelected && styles.pinOuterSelected]}>
+                  <View style={[styles.pinInner, isSelected && styles.pinInnerSelected]}>
+                    <Ionicons 
+                      name={isSelected ? "leaf" : "pin"} 
+                      size={isSelected ? 14 : 12} 
+                      color="#FFFFFF" 
+                    />
+                  </View>
                 </View>
-              </View>
-              {/* Nome flutuante sob o pin */}
-              <View style={[styles.pinLabelContainer, isSelected && styles.pinLabelActive]}>
-                <Text style={[styles.pinLabelText, isSelected && styles.pinLabelTextActive]}>
-                  {pin.name}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+                {/* Nome flutuante sob o pin */}
+                <View style={[styles.pinLabelContainer, isSelected && styles.pinLabelActive]}>
+                  <Text style={[styles.pinLabelText, isSelected && styles.pinLabelTextActive]}>
+                    {pin.name}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
 
       {/* Painel de Detalhes do Bioma Selecionado */}
@@ -249,18 +251,28 @@ const styles = StyleSheet.create({
   },
   mapContainer: {
     flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  mapWrapper: {
+    width: '92%',
+    maxWidth: 360,
+    aspectRatio: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    overflow: 'hidden',
     position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 10,
   },
   mapBackground: {
     width: '100%',
     height: '100%',
-    opacity: 0.25,
-  },
-  mapOverlayFilter: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(11, 19, 14, 0.7)',
+    opacity: 0.75, // Ajusta opacidade para casar com o tema escuro
   },
   mapHint: {
     position: 'absolute',
