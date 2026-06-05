@@ -206,7 +206,10 @@ export function HomeScreen({ navigation }: any) {
                 <Text style={styles.menuItemTextActive}>Biomas do Brasil</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem} onPress={handleDevFeature}>
+              <TouchableOpacity 
+                style={styles.menuItem} 
+                onPress={() => { setMenuVisible(false); navigation.navigate('InteractiveMap'); }}
+              >
                 <View style={styles.menuIconBox}>
                   <Ionicons name="globe-outline" size={22} color="#94A3B8" />
                 </View>
