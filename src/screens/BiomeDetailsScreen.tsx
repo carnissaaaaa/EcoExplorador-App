@@ -227,10 +227,11 @@ const styles = StyleSheet.create({
     maxWidth: 420,
   },
   coverImage: {
-    width: '100%',
+    alignSelf: 'stretch',
     height: 220,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderRadius: 24,
+    marginTop: 15,
+    marginHorizontal: 20,
   },
   quickInfoSection: {
     flexDirection: 'row',
