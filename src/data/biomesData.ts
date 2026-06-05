@@ -83,7 +83,7 @@ export const biomesData: Record<string, Biome> = {
       "Apesar de restarem apenas cerca de 12% de sua cobertura original, ainda abriga uma enorme quantidade de espécies endêmicas.",
       "Muitas cidades brasileiras, incluindo grandes capitais, foram construídas sobre áreas de Mata Atlântica."
     ],
-    image: "https://images.unsplash.com/photo-1588392382834-a8af9f547b6a?q=80&w=800&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?q=80&w=800&auto=format&fit=crop",
     deforestationRate: 88
   },
   pampa: {
