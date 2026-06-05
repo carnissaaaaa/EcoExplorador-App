@@ -1,0 +1,126 @@
+export interface Biome {
+  id: string;
+  title: string;
+  text: string;
+  fauna: string[];
+  flora: string[];
+  clima: string;
+  solo: string;
+  curiosidades: string[];
+  image: string;
+  deforestationRate: number;
+}
+
+export const biomesData: Record<string, Biome> = {
+  amazonia: {
+    id: "amazonia",
+    title: "Amazônia",
+    text: "A maior floresta tropical do mundo, a Amazônia é fundamental para o equilíbrio climático global. Abriga uma biodiversidade inigualável, com milhões de espécies de plantas, insetos, peixes e mamíferos. A bacia amazônica detém a maior reserva de água doce do planeta.",
+    fauna: [
+      "Onça-pintada",
+      "Boto-cor-de-rosa",
+      "Peixe-boi-da-amazônia",
+      "Arara-vermelha"
+    ],
+    flora: ["Seringueira", "Castanheira", "Vitória-régia", "Açaizeiro"],
+    clima: "Equatorial, quente e úmido, com chuvas abundantes o ano todo. Temperatura média anual de 25-28°C.",
+    solo: "Predominantemente solos de baixa fertilidade (Latossolos e Argissolos), mas com uma rica camada de matéria orgânica na superfície, essencial para a nutrição da floresta.",
+    curiosidades: [
+      "Abriga cerca de 10% das espécies conhecidas do mundo.",
+      "O Rio Amazonas é o maior rio do mundo em volume de água.",
+      "A floresta amazônica produz cerca de 20% do oxigênio da Terra."
+    ],
+    image: "https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 21
+  },
+  caatinga: {
+    id: "caatinga",
+    title: "Caatinga",
+    text: "Bioma exclusivamente brasileiro, a Caatinga é adaptada a condições de semi-aridez. Sua vegetação é composta por plantas xerófitas, que sobrevivem com pouca água. É um bioma rico em biodiversidade, com muitas espécies endêmicas.",
+    fauna: ["Tatu-bola", "Soldadinho-do-araripe", "Asa-branca", "Mocó"],
+    flora: ["Mandacaru", "Xique-xique", "Juazeiro", "Umbuzeiro"],
+    clima: "Semiárido, com longos períodos de seca e chuvas irregulares. Temperatura média anual de 25-29°C.",
+    solo: "Solos rasos e pedregosos, com baixa capacidade de retenção de água, mas ricos em minerais. A vegetação é adaptada a essas condições.",
+    curiosidades: [
+      "É o único bioma exclusivamente brasileiro.",
+      "Muitas plantas da Caatinga perdem as folhas na estação seca para economizar água.",
+      "A palavra 'Caatinga' significa 'mata branca' em tupi, referindo-se à paisagem seca."
+    ],
+    image: "https://images.unsplash.com/photo-1590418606746-018840f9cd0f?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 45
+  },
+  cerrado: {
+    id: "cerrado",
+    title: "Cerrado",
+    text: "Considerado a savana mais rica do mundo em biodiversidade, o Cerrado é conhecido como o 'berço das águas' do Brasil, por abrigar nascentes de importantes bacias hidrográficas. Sua vegetação é adaptada ao fogo e à seca.",
+    fauna: ["Lobo-guará", "Tamanduá-bandeira", "Ema", "Seriema"],
+    flora: ["Ipê-amarelo", "Pequizeiro", "Baru", "Cagaita"],
+    clima: "Tropical sazonal, com verão chuvoso e inverno seco. Temperatura média anual de 22-27°C.",
+    solo: "Solos profundos, ácidos e com alta concentração de alumínio, o que exige adaptações das plantas. É conhecido como 'berço das águas' devido à sua função hidrológica.",
+    curiosidades: [
+      "É a savana mais biodiversa do mundo.",
+      "Suas árvores possuem cascas grossas e raízes profundas para resistir ao fogo e buscar água.",
+      "Abriga nascentes de importantes rios brasileiros, como os que formam as bacias do Paraná, Tocantins e São Francisco."
+    ],
+    image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 52
+  },
+  "mata-atlantica": {
+    id: "mata-atlantica",
+    title: "Mata Atlântica",
+    text: "Um dos biomas mais ameaçados do mundo, a Mata Atlântica originalmente se estendia por quase toda a costa brasileira. Hoje, restam apenas fragmentos, mas que ainda abrigam uma biodiversidade extremamente rica e muitas espécies endêmicas.",
+    fauna: [
+      "Mico-leão-dourado",
+      "Jaguarundi",
+      "Capivara",
+      "Tucano-de-bico-preto"
+    ],
+    flora: ["Pau-brasil", "Jequitibá-rosa", "Palmito-juçara", "Orquídeas"],
+    clima: "Tropical úmido, com chuvas bem distribuídas ao longo do ano e temperaturas elevadas. Variações de subtropical no sul.",
+    solo: "Solos variados, desde férteis (Massapê) até mais arenosos, influenciados pela topografia e proximidade com o oceano.",
+    curiosidades: [
+      "É um dos biomas mais ricos em biodiversidade e um dos mais ameaçados do planeta.",
+      "Apesar de restarem apenas cerca de 12% de sua cobertura original, ainda abriga uma enorme quantidade de espécies endêmicas.",
+      "Muitas cidades brasileiras, incluindo grandes capitais, foram construídas sobre áreas de Mata Atlântica."
+    ],
+    image: "https://images.unsplash.com/photo-1588392382834-a8af9f547b6a?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 88
+  },
+  pampa: {
+    id: "pampa",
+    title: "Pampa",
+    text: "Também conhecido como Campos Sulinos, o Pampa é caracterizado por sua vegetação campestre, com predominância de gramíneas. É um bioma importante para a pecuária e para a conservação de espécies de aves migratórias.",
+    fauna: [
+      "Graxaim-do-campo",
+      "Tuco-tuco",
+      "Quero-qual",
+      "João-de-barro"
+    ],
+    flora: ["Capim-forquilha", "Trevo-nativo", "Babosa-do-campo", "Guiné"],
+    clima: "Subtropical, com as quatro estações bem definidas, verões quentes e invernos rigorosos com geadas. Chuvas bem distribuídas.",
+    solo: "Solos férteis e profundos, ricos em matéria orgânica, ideais para pastagens e agricultura. Predominam os Chernozems e Brunizems.",
+    curiosidades: [
+      "É o único bioma brasileiro que se estende por três países (Brasil, Argentina e Uruguai).",
+      "Sua paisagem é dominada por campos abertos e coxilhas (pequenas colinas).",
+      "É um importante corredor para aves migratórias e abriga espécies ameaçadas como o veado-campeiro."
+    ],
+    image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 54
+  },
+  pantanal: {
+    id: "pantanal",
+    title: "Pantanal",
+    text: "A maior planície inundável do planeta, o Pantanal é um santuário de vida selvagem. Sua paisagem muda drasticamente entre as estações seca e chuvosa, criando um ecossistema único e de grande importância para a fauna.",
+    fauna: ["Tuiuiú", "Jacaré", "Sucuri", "Ariranha"],
+    flora: ["Ipê-roxo", "Cambará", "Acuri", "Aguapé"],
+    clima: "Tropical, com duas estações bem definidas: uma chuvosa (verão) e uma seca (inverno). Temperatura média anual de 23-27°C.",
+    solo: "Solos aluviais, ricos em nutrientes e argila, que são constantemente fertilizados pelas inundações anuais. A dinâmica de cheias e secas molda a paisagem.",
+    curiosidades: [
+      "É a maior área úmida contínua do planeta.",
+      "A cada ano, grandes áreas são inundadas, criando um ecossistema dinâmico e rico em vida aquática.",
+      "Abriga a maior concentração de vida selvagem da América do Sul, sendo um paraíso para observadores de aves e mamíferos."
+    ],
+    image: "https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=800&auto=format&fit=crop",
+    deforestationRate: 17
+  }
+};
