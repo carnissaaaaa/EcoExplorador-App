@@ -21,10 +21,22 @@ const customFont = Platform.OS === 'web'
   ? 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
   : (Platform.OS === 'ios' ? 'Avenir Next' : 'sans-serif-medium');
 
+const ECOLOGICAL_FACTS = [
+  "A Caatinga é o único bioma 100% exclusivamente brasileiro, e cerca de 1/3 de suas espécies de plantas não existem em nenhum outro lugar do mundo!",
+  "O Rio Amazonas despeja cerca de 175 milhões de litros de água doce no Oceano Atlântico a cada segundo, a maior vazão do planeta!",
+  "O Lobo-guará, símbolo do Cerrado, é o maior canídeo da América do Sul. Ele ajuda a reflorestar o bioma espalhando sementes de lobeira.",
+  "O Pantanal abriga a maior densidade de jacarés do mundo. Estima-se que existam mais de 10 milhões de jacarés na região.",
+  "A Mata Atlântica, embora restando cerca de 12% da área original, concentra 20 mil espécies de plantas (8 mil delas exclusivas/endêmicas).",
+  "A Vitória-régia é uma planta gigante da Amazônia cujas folhas circulares podem atingir 2,5 metros de diâmetro e suportar até 40 kg flutuando.",
+  "O Pampa Sulino é formado por campos nativos com mais de 3.000 espécies de plantas herbáceas e serve de rota para aves migratórias.",
+  "O Tuiuiú é a ave símbolo do Pantanal e constrói ninhos em copas de árvores que podem ultrapassar 1,5 metro de diâmetro e 2 metros de altura."
+];
+
 export function HomeScreen({ navigation }: any) {
   const [menuVisible, setMenuVisible] = useState(false);
   const [devVisible, setDevVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [factIndex, setFactIndex] = useState(0);
 
   const handleDevFeature = () => {
     setMenuVisible(false);
@@ -42,6 +54,7 @@ export function HomeScreen({ navigation }: any) {
 
   const floatAnim1 = useRef(new Animated.Value(0)).current;
   const floatAnim2 = useRef(new Animated.Value(0)).current;
+  const fadeFactAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     const createFloatingAnimation = (anim: Animated.Value, duration: number, offset: number) => {
@@ -65,6 +78,26 @@ export function HomeScreen({ navigation }: any) {
 
     createFloatingAnimation(floatAnim1, 4500, -20).start();
     createFloatingAnimation(floatAnim2, 5500, 30).start();
+
+    // Rotação de fatos ecológicos
+    const factInterval = setInterval(() => {
+      Animated.timing(fadeFactAnim, {
+        toValue: 0,
+        duration: 400,
+        useNativeDriver: true
+      }).start(() => {
+        setFactIndex((prevIndex) => (prevIndex + 1) % ECOLOGICAL_FACTS.length);
+        Animated.timing(fadeFactAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true
+        }).start();
+      });
+    }, 8000); // Rotaciona a cada 8 segundos
+
+    return () => {
+      clearInterval(factInterval);
+    };
   }, []);
 
   // Filtragem dos biomas com base na busca
@@ -118,18 +151,18 @@ export function HomeScreen({ navigation }: any) {
             </View>
           </View>
 
-          {/* Seção de Curiosidade / Fato Ecológico */}
+          {/* Seção de Curiosidade / Fato Ecológico Rotativo */}
           <View style={styles.dashboardContainer}>
             <Text style={styles.sectionTitle}>Você Sabia?</Text>
 
-            <View style={styles.factCard}>
+            <Animated.View style={[styles.factCard, { opacity: fadeFactAnim }]}>
               <View style={styles.factIconBox}>
                 <Ionicons name="bulb-outline" size={24} color="#34D399" />
               </View>
               <Text style={styles.factText}>
-                A Caatinga é o único bioma 100% exclusivamente brasileiro, e cerca de 1/3 de suas espécies de plantas não existem em nenhum outro lugar do mundo!
+                {ECOLOGICAL_FACTS[factIndex]}
               </Text>
-            </View>
+            </Animated.View>
           </View>
 
           {/* Lista de Biomas */}
