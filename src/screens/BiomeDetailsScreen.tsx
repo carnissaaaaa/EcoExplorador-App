@@ -55,7 +55,7 @@ export function BiomeDetailsScreen({ route, navigation }: any) {
             <View style={styles.infoCard}>
               <Ionicons name="thermometer-outline" size={20} color="#34D399" />
               <Text style={styles.infoCardTitle}>Clima</Text>
-              <Text style={styles.infoCardText} numberOfLines={2}>{biome.clima}</Text>
+              <Text style={styles.infoCardText}>{biome.clima}</Text>
             </View>
 
             <View style={styles.infoCard}>
@@ -237,6 +237,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginTop: 20,
     justifyContent: 'space-between',
+    alignItems: 'stretch',
   },
   infoCard: {
     flex: 1,
