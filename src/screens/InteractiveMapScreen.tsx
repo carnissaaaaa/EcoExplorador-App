@@ -78,6 +78,108 @@ const mapPins: MapPin[] = [
   }
 ];
 
+interface MapRegion {
+  id: string;
+  name: string;
+  top: any;
+  left: any;
+  width: any;
+  height: any;
+  borderRadius: number;
+  percentage: string;
+  icon: any;
+  activeColor: string;
+  inactiveColor: string;
+  glowColor: string;
+}
+
+const mapRegions: MapRegion[] = [
+  {
+    id: 'amazonia',
+    name: 'Amazônia',
+    top: '4%',
+    left: '4%',
+    width: '46%',
+    height: '42%',
+    borderRadius: 30,
+    percentage: '49.3%',
+    icon: 'leaf',
+    activeColor: 'rgba(16, 185, 129, 0.22)',
+    inactiveColor: 'rgba(16, 185, 129, 0.04)',
+    glowColor: '#10B981',
+  },
+  {
+    id: 'caatinga',
+    name: 'Caatinga',
+    top: '10%',
+    left: '56%',
+    width: '38%',
+    height: '28%',
+    borderRadius: 24,
+    percentage: '9.9%',
+    icon: 'sunny',
+    activeColor: 'rgba(245, 158, 11, 0.22)',
+    inactiveColor: 'rgba(245, 158, 11, 0.04)',
+    glowColor: '#F59E0B',
+  },
+  {
+    id: 'cerrado',
+    name: 'Cerrado',
+    top: '42%',
+    left: '26%',
+    width: '38%',
+    height: '32%',
+    borderRadius: 28,
+    percentage: '23.9%',
+    icon: 'partly-sunny',
+    activeColor: 'rgba(234, 179, 8, 0.22)',
+    inactiveColor: 'rgba(234, 179, 8, 0.04)',
+    glowColor: '#EAB308',
+  },
+  {
+    id: 'mata-atlantica',
+    name: 'Mata Atlântica',
+    top: '44%',
+    left: '68%',
+    width: '26%',
+    height: '34%',
+    borderRadius: 20,
+    percentage: '13.0%',
+    icon: 'rainy',
+    activeColor: 'rgba(5, 150, 105, 0.22)',
+    inactiveColor: 'rgba(5, 150, 105, 0.04)',
+    glowColor: '#059669',
+  },
+  {
+    id: 'pantanal',
+    name: 'Pantanal',
+    top: '52%',
+    left: '4%',
+    width: '18%',
+    height: '18%',
+    borderRadius: 18,
+    percentage: '1.8%',
+    icon: 'water',
+    activeColor: 'rgba(6, 182, 212, 0.22)',
+    inactiveColor: 'rgba(6, 182, 212, 0.04)',
+    glowColor: '#06B6D4',
+  },
+  {
+    id: 'pampa',
+    name: 'Pampa',
+    top: '78%',
+    left: '34%',
+    width: '24%',
+    height: '18%',
+    borderRadius: 16,
+    percentage: '2.1%',
+    icon: 'flower',
+    activeColor: 'rgba(132, 204, 22, 0.22)',
+    inactiveColor: 'rgba(132, 204, 22, 0.04)',
+    glowColor: '#84CC16',
+  }
+];
+
 export function InteractiveMapScreen({ navigation }: any) {
   const [selectedBiomeId, setSelectedBiomeId] = useState<string>('amazonia');
   
@@ -91,9 +193,32 @@ export function InteractiveMapScreen({ navigation }: any) {
   const [tourStep, setTourStep] = useState<number>(0);
   const tourProgress = useRef(new Animated.Value(0)).current;
 
+  // Pulso contínuo para o bioma ativo
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
   // Encontra os detalhes do bioma selecionado
   const activePin = mapPins.find(p => p.id === selectedBiomeId) || mapPins[0];
   const fullBiomeInfo = biomesData[selectedBiomeId];
+
+  // Efeito de pulso animado infinito
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 0.97,
+          duration: 900,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true
+        })
+      ])
+    ).start();
+  }, []);
 
   // Efeito de animação ao mudar o bioma selecionado
   useEffect(() => {
@@ -229,42 +354,66 @@ export function InteractiveMapScreen({ navigation }: any) {
           <Text style={styles.mapHint}>Selecione um ponto no mapa para explorar</Text>
         )}
 
-        {/* Moldura do Mapa do Brasil */}
+        {/* Moldura do Mapa do Brasil (Mapa Geométrico Estilizado) */}
         <View style={styles.mapWrapper}>
-          <Image 
-            source={require('../../assets/brazil_biomes_map.png')} 
-            style={styles.mapBackground} 
-            resizeMode="contain"
-          />
+          {/* Linhas de Grid do Radar/Tecnologia de Fundo */}
+          <View style={styles.mapGridLineH} />
+          <View style={[styles.mapGridLineH, { top: '50%' }]} />
+          <View style={[styles.mapGridLineH, { top: '75%' }]} />
+          <View style={styles.mapGridLineV} />
+          <View style={[styles.mapGridLineV, { left: '50%' }]} />
+          <View style={[styles.mapGridLineV, { left: '75%' }]} />
           
-          {/* Renderização dos Pins Interativos posicionados sobre o Mapa */}
-          {mapPins.map((pin) => {
-            const isSelected = pin.id === selectedBiomeId;
+          {/* Renderização das Regiões Geométricas Interativas */}
+          {mapRegions.map((region) => {
+            const isSelected = region.id === selectedBiomeId;
             return (
               <TouchableOpacity
-                key={pin.id}
+                key={region.id}
                 style={[
-                  styles.pinTouchable, 
-                  { top: pin.top, left: pin.left }
+                  styles.biomeRegion, 
+                  { 
+                    top: region.top, 
+                    left: region.left, 
+                    width: region.width, 
+                    height: region.height,
+                    borderRadius: region.borderRadius,
+                    backgroundColor: isSelected ? region.activeColor : region.inactiveColor,
+                    borderColor: isSelected ? region.glowColor : 'rgba(255, 255, 255, 0.08)',
+                    opacity: isSelected ? 1 : 0.35,
+                  },
+                  isSelected && {
+                    shadowColor: region.glowColor,
+                    shadowOpacity: 0.9,
+                    shadowRadius: 20,
+                    elevation: 15,
+                    zIndex: 50,
+                  }
                 ]}
-                onPress={() => handleSelectBiome(pin.id)}
-                activeOpacity={0.8}
+                onPress={() => handleSelectBiome(region.id)}
+                activeOpacity={0.9}
               >
-                <View style={[styles.pinOuter, isSelected && styles.pinOuterSelected]}>
-                  <View style={[styles.pinInner, isSelected && styles.pinInnerSelected]}>
-                    <Ionicons 
-                      name={isSelected ? "leaf" : "pin"} 
-                      size={isSelected ? 14 : 12} 
-                      color="#FFFFFF" 
-                    />
-                  </View>
-                </View>
-                {/* Nome flutuante sob o pin */}
-                <View style={[styles.pinLabelContainer, isSelected && styles.pinLabelActive]}>
-                  <Text style={[styles.pinLabelText, isSelected && styles.pinLabelTextActive]}>
-                    {pin.name}
+                <Animated.View style={[
+                  styles.regionContent,
+                  isSelected && { transform: [{ scale: pulseAnim }] }
+                ]}>
+                  <Ionicons 
+                    name={region.icon} 
+                    size={isSelected ? 22 : 16} 
+                    color={isSelected ? '#FFFFFF' : '#94A3B8'} 
+                  />
+                  <Text style={[
+                    styles.regionName, 
+                    isSelected ? styles.regionNameSelected : styles.regionNameInactive
+                  ]}>
+                    {region.name}
                   </Text>
-                </View>
+                  {isSelected && (
+                    <Text style={styles.regionPercentageText}>
+                      {region.percentage}
+                    </Text>
+                  )}
+                </Animated.View>
               </TouchableOpacity>
             );
           })}
@@ -684,5 +833,55 @@ const styles = StyleSheet.create({
     marginRight: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  biomeRegion: {
+    position: 'absolute',
+    borderWidth: 1.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 6,
+  },
+  regionContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+  },
+  regionName: {
+    fontFamily: customFont,
+    fontSize: 10,
+    fontWeight: '800',
+    marginTop: 4,
+    textAlign: 'center',
+    letterSpacing: -0.2,
+  },
+  regionNameSelected: {
+    color: '#FFFFFF',
+  },
+  regionNameInactive: {
+    color: '#94A3B8',
+  },
+  regionPercentageText: {
+    fontFamily: customFont,
+    fontSize: 8,
+    color: 'rgba(255, 255, 255, 0.85)',
+    marginTop: 2,
+    fontWeight: '800',
+  },
+  mapGridLineH: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: '25%',
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
+  },
+  mapGridLineV: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: '25%',
+    width: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.03)',
   },
 });
