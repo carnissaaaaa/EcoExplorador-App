@@ -85,10 +85,17 @@ export function InteractiveMapScreen({ navigation }: any) {
   const slideAnim = useRef(new Animated.Value(100)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  // Estados do Modo Tour (Eco-Tour)
+  const [isTourActive, setIsTourActive] = useState<boolean>(false);
+  const [isTourPaused, setIsTourPaused] = useState<boolean>(false);
+  const [tourStep, setTourStep] = useState<number>(0);
+  const tourProgress = useRef(new Animated.Value(0)).current;
+
   // Encontra os detalhes do bioma selecionado
   const activePin = mapPins.find(p => p.id === selectedBiomeId) || mapPins[0];
   const fullBiomeInfo = biomesData[selectedBiomeId];
 
+  // Efeito de animação ao mudar o bioma selecionado
   useEffect(() => {
     // Resetar e executar animação quando o bioma muda
     slideAnim.setValue(40);
@@ -109,13 +116,82 @@ export function InteractiveMapScreen({ navigation }: any) {
     ]).start();
   }, [selectedBiomeId]);
 
+  // Efeito do Progresso Automático do Tour
+  useEffect(() => {
+    if (isTourActive && !isTourPaused) {
+      tourProgress.setValue(0);
+      Animated.timing(tourProgress, {
+        toValue: 1,
+        duration: 6000, // 6 segundos de exibição por bioma
+        easing: Easing.linear,
+        useNativeDriver: false
+      }).start(({ finished }) => {
+        if (finished) {
+          const nextStep = (tourStep + 1) % mapPins.length;
+          setTourStep(nextStep);
+          setSelectedBiomeId(mapPins[nextStep].id);
+        }
+      });
+    } else {
+      tourProgress.stopAnimation();
+    }
+
+    return () => {
+      tourProgress.stopAnimation();
+    };
+  }, [isTourActive, isTourPaused, tourStep]);
+
+  const toggleTourMode = () => {
+    if (isTourActive) {
+      handleStopTour();
+    } else {
+      setIsTourActive(true);
+      setIsTourPaused(false);
+      setTourStep(0);
+      setSelectedBiomeId(mapPins[0].id);
+    }
+  };
+
+  const handleStopTour = () => {
+    setIsTourActive(false);
+    setIsTourPaused(false);
+    tourProgress.setValue(0);
+  };
+
+  const handleTourPlayPause = () => {
+    setIsTourPaused(!isTourPaused);
+  };
+
+  const handleTourNext = () => {
+    const nextStep = (tourStep + 1) % mapPins.length;
+    setTourStep(nextStep);
+    setSelectedBiomeId(mapPins[nextStep].id);
+  };
+
+  const handleTourPrev = () => {
+    const prevStep = (tourStep - 1 + mapPins.length) % mapPins.length;
+    setTourStep(prevStep);
+    setSelectedBiomeId(mapPins[prevStep].id);
+  };
+
   const handleSelectBiome = (id: string) => {
     setSelectedBiomeId(id);
+    if (isTourActive) {
+      const index = mapPins.findIndex(p => p.id === id);
+      if (index !== -1) {
+        setTourStep(index);
+      }
+    }
   };
 
   const handleExploreMore = () => {
     navigation.navigate('BiomeDetails', { biomeId: selectedBiomeId });
   };
+
+  const progressBarWidth = tourProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '100%']
+  });
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -125,13 +201,33 @@ export function InteractiveMapScreen({ navigation }: any) {
           <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Mapa de Biomas</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity 
+          style={[styles.headerTourButton, isTourActive && styles.headerTourButtonActive]} 
+          onPress={toggleTourMode}
+          activeOpacity={0.7}
+        >
+          <Ionicons 
+            name={isTourActive ? "stop-circle" : "play-circle"} 
+            size={24} 
+            color={isTourActive ? "#10B981" : "#FFFFFF"} 
+          />
+        </TouchableOpacity>
       </View>
 
       {/* Conteiner do Mapa */}
       <View style={styles.mapContainer}>
-        {/* Nome explicativo */}
-        <Text style={styles.mapHint}>Selecione um ponto no mapa para explorar</Text>
+        {/* Nome explicativo ou Badge do Tour */}
+        {isTourActive ? (
+          <View style={styles.tourBadge}>
+            <View style={styles.tourBadgeDot} />
+            <Text style={styles.tourBadgeText}>
+              Eco-Tour: {tourStep + 1} de {mapPins.length}
+            </Text>
+            {isTourPaused && <Text style={styles.tourPausedText}> (Pausado)</Text>}
+          </View>
+        ) : (
+          <Text style={styles.mapHint}>Selecione um ponto no mapa para explorar</Text>
+        )}
 
         {/* Moldura do Mapa do Brasil */}
         <View style={styles.mapWrapper}>
@@ -180,6 +276,13 @@ export function InteractiveMapScreen({ navigation }: any) {
         styles.detailsPanel, 
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
       ]}>
+        {/* Barra de Progresso do Tour */}
+        {isTourActive && (
+          <View style={styles.progressBarBg}>
+            <Animated.View style={[styles.progressBarFill, { width: progressBarWidth }]} />
+          </View>
+        )}
+
         <View style={styles.panelHeader}>
           <View>
             <Text style={styles.panelTitle}>{activePin.name}</Text>
@@ -204,14 +307,44 @@ export function InteractiveMapScreen({ navigation }: any) {
           </View>
         </View>
 
-        <TouchableOpacity 
-          style={styles.exploreButton} 
-          onPress={handleExploreMore}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.exploreButtonText}>Explorar Conteúdo Completo</Text>
-          <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
-        </TouchableOpacity>
+        {/* Linha de botões de ação / controles */}
+        <View style={styles.actionButtonsRow}>
+          {isTourActive ? (
+            <View style={styles.tourControlsContainer}>
+              {/* Botões do Tour */}
+              <View style={styles.tourNavControls}>
+                <TouchableOpacity style={styles.tourMiniBtn} onPress={handleTourPrev} activeOpacity={0.7}>
+                  <Ionicons name="play-skip-back" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.tourMiniBtn, styles.tourMiniBtnActive]} onPress={handleTourPlayPause} activeOpacity={0.7}>
+                  <Ionicons name={isTourPaused ? "play" : "pause"} size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.tourMiniBtn} onPress={handleTourNext} activeOpacity={0.7}>
+                  <Ionicons name="play-skip-forward" size={18} color="#FFFFFF" />
+                </TouchableOpacity>
+              </View>
+              
+              {/* Botão Explorar Menor */}
+              <TouchableOpacity 
+                style={styles.exploreMiniButton} 
+                onPress={handleExploreMore}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.exploreMiniButtonText}>Explorar</Text>
+                <Ionicons name="chevron-forward" size={14} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity 
+              style={styles.exploreButton} 
+              onPress={handleExploreMore}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.exploreButtonText}>Explorar Conteúdo Completo</Text>
+              <Ionicons name="chevron-forward" size={16} color="#FFFFFF" />
+            </TouchableOpacity>
+          )}
+        </View>
       </Animated.View>
     </SafeAreaView>
   );
@@ -443,6 +576,112 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: 'bold',
     marginRight: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  headerTourButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerTourButtonActive: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(16, 185, 129, 0.3)',
+  },
+  tourBadge: {
+    position: 'absolute',
+    top: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+    borderColor: 'rgba(16, 185, 129, 0.4)',
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    zIndex: 10,
+  },
+  tourBadgeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#10B981',
+    marginRight: 8,
+  },
+  tourBadgeText: {
+    fontFamily: customFont,
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: 'bold',
+  },
+  tourPausedText: {
+    fontFamily: customFont,
+    color: '#94A3B8',
+    fontSize: 13,
+  },
+  progressBarBg: {
+    height: 3,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderRadius: 1.5,
+    overflow: 'hidden',
+    marginBottom: 16,
+    width: '100%',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#10B981',
+  },
+  actionButtonsRow: {
+    width: '100%',
+    marginTop: 4,
+  },
+  tourControlsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  tourNavControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 30,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  tourMiniBtn: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tourMiniBtnActive: {
+    backgroundColor: '#059669',
+  },
+  exploreMiniButton: {
+    flex: 1,
+    marginLeft: 12,
+    backgroundColor: '#10B981',
+    borderRadius: 30,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#34D399',
+  },
+  exploreMiniButtonText: {
+    fontFamily: customFont,
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginRight: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
