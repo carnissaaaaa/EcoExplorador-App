@@ -5,9 +5,12 @@ O **EcoExplorador** é um aplicativo mobile desenvolvido em **React Native** com
 ---
 
 ## 👥 Membros da Equipe (Grupo Ecoexplorador)
-*   [Nome do Integrante 1] - [Matrícula 1]
-*   [Nome do Integrante 2] - [Matrícula 2]
-*   [Nome do Integrante 3] - [Matrícula 3]
+*   [João Kelvin Monteiro Veras]
+*   [Davi César Batista Monteiro]
+*   [Kauê Lázaro Damasceno]
+*   [Davi Batista de Morais]
+*   [João Gabriel da Silva Antunes]
+*   [Ronald Teobaldo dos Santos]
 
 ---
 
