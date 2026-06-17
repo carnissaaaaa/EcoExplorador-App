@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { biomesData } from '../data/biomesData';
+import { useAuth } from '../contexts/AuthContext';
 
 const customFont = Platform.OS === 'web'
   ? 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
@@ -33,6 +34,7 @@ const ECOLOGICAL_FACTS = [
 ];
 
 export function HomeScreen({ navigation }: any) {
+  const { user, signOut } = useAuth();
   const [menuVisible, setMenuVisible] = useState(false);
   const [devVisible, setDevVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -45,16 +47,16 @@ export function HomeScreen({ navigation }: any) {
 
   const handleLogout = () => {
     setMenuVisible(false);
-    navigation.navigate('Login');
+    signOut();
   };
 
   const handleBiomePress = (biomeId: string) => {
     navigation.navigate('BiomeDetails', { biomeId });
   };
 
-  const floatAnim1 = useRef(new Animated.Value(0)).current;
-  const floatAnim2 = useRef(new Animated.Value(0)).current;
-  const fadeFactAnim = useRef(new Animated.Value(1)).current;
+  const [floatAnim1] = useState(() => new Animated.Value(0));
+  const [floatAnim2] = useState(() => new Animated.Value(0));
+  const [fadeFactAnim] = useState(() => new Animated.Value(1));
 
   useEffect(() => {
     const createFloatingAnimation = (anim: Animated.Value, duration: number, offset: number) => {
@@ -98,7 +100,7 @@ export function HomeScreen({ navigation }: any) {
     return () => {
       clearInterval(factInterval);
     };
-  }, []);
+  }, [fadeFactAnim, floatAnim1, floatAnim2]);
 
   // Filtragem dos biomas com base na busca
   const filteredBiomeKeys = Object.keys(biomesData).filter(key => 
@@ -225,8 +227,8 @@ export function HomeScreen({ navigation }: any) {
                 source={{ uri: 'https://i.pravatar.cc/150?img=11' }}
                 style={styles.menuAvatar}
               />
-              <Text style={styles.menuUserName}>Explorador Padrão</Text>
-              <Text style={styles.menuUserEmail}>aluno@exemplo.com</Text>
+              <Text style={styles.menuUserName}>{user?.username || 'Explorador Padrão'}</Text>
+              <Text style={styles.menuUserEmail}>{user?.username ? `${user.username}@exemplo.com` : 'aluno@exemplo.com'}</Text>
             </View>
 
             <View style={styles.menuItemsContainer}>

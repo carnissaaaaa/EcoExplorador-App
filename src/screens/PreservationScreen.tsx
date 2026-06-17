@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { 
   View, 
   Text, 
@@ -9,8 +9,7 @@ import {
   SafeAreaView, 
   Platform, 
   StatusBar, 
-  Animated, 
-  Easing 
+  Animated
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -29,7 +28,7 @@ interface ActionItem {
 const actionItems: ActionItem[] = [
   {
     id: 'residuos',
-    icon: 'recycle-outline',
+    icon: 'trash-outline',
     title: 'Gestão de Resíduos',
     description: 'Aterros sanitários são grandes emissores de metano (CH4), um dos gases de efeito estufa. Faça compostagem para resíduos orgânicos em sua residência e separe materiais recicláveis.',
     color: '#34D399'
@@ -61,8 +60,8 @@ export function PreservationScreen({ navigation }: any) {
   const [selectedActionId, setSelectedActionId] = useState<string>('residuos');
   
   // Animação para troca de conteúdo
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const [fadeAnim] = useState(() => new Animated.Value(1));
+  const [scaleAnim] = useState(() => new Animated.Value(1));
 
   const activeAction = actionItems.find(item => item.id === selectedActionId) || actionItems[0];
 
@@ -276,7 +275,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   bannerOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: 'rgba(11, 19, 14, 0.65)',
   },
   bannerTextContainer: {

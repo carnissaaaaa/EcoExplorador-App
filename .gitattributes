@@ -1,0 +1,2 @@
+# Normalização de quebras de linha (LF) em ambientes mistos Windows/Linux
+* text=auto eol=lf

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   StyleSheet, 
-  Image, 
   SafeAreaView, 
   Platform, 
   StatusBar, 
@@ -85,21 +84,21 @@ export function InteractiveMapScreen({ navigation }: any) {
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('territory');
   
   // Animações do Painel de Detalhes
-  const slideAnim = useRef(new Animated.Value(100)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const [slideAnim] = useState(() => new Animated.Value(100));
+  const [fadeAnim] = useState(() => new Animated.Value(0));
 
   // Pulso contínuo para o bioma ativo no gráfico
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const [pulseAnim] = useState(() => new Animated.Value(1));
 
   // Valores animados para cada uma das barras do gráfico
-  const barWidths = {
-    amazonia: useRef(new Animated.Value(0.493)).current,
-    caatinga: useRef(new Animated.Value(0.099)).current,
-    cerrado: useRef(new Animated.Value(0.239)).current,
-    'mata-atlantica': useRef(new Animated.Value(0.130)).current,
-    pantanal: useRef(new Animated.Value(0.018)).current,
-    pampa: useRef(new Animated.Value(0.021)).current,
-  };
+  const [barWidths] = useState(() => ({
+    amazonia: new Animated.Value(0.493),
+    caatinga: new Animated.Value(0.099),
+    cerrado: new Animated.Value(0.239),
+    'mata-atlantica': new Animated.Value(0.130),
+    pantanal: new Animated.Value(0.018),
+    pampa: new Animated.Value(0.021),
+  }));
 
   const getMetricValue = (biomeId: string, metric: MetricType) => {
     switch (metric) {
@@ -154,7 +153,7 @@ export function InteractiveMapScreen({ navigation }: any) {
         })
       ])
     ).start();
-  }, []);
+  }, [pulseAnim]);
 
   // Efeito de animação de entrada ao mudar o bioma selecionado
   useEffect(() => {
@@ -174,7 +173,7 @@ export function InteractiveMapScreen({ navigation }: any) {
         useNativeDriver: true
       })
     ]).start();
-  }, [selectedBiomeId]);
+  }, [selectedBiomeId, fadeAnim, slideAnim]);
 
   // Efeito de largura animada ao trocar a métrica selecionada
   useEffect(() => {
@@ -189,7 +188,7 @@ export function InteractiveMapScreen({ navigation }: any) {
     });
 
     Animated.parallel(animations).start();
-  }, [selectedMetric]);
+  }, [selectedMetric, barWidths]);
 
   const handleSelectBiome = (id: string) => {
     setSelectedBiomeId(id);

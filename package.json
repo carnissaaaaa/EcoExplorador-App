@@ -7,6 +7,7 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
+    "lint": "expo lint",
     "eas-build-pre-install": "npm config set legacy-peer-deps true"
   },
   "dependencies": {
@@ -14,8 +15,10 @@
     "@expo/vector-icons": "^15.1.1",
     "@react-navigation/native": "^7.2.2",
     "@react-navigation/native-stack": "^7.14.12",
+    "axios": "^1.18.0",
     "expo": "^56.0.8",
     "expo-font": "~56.0.5",
+    "expo-secure-store": "~56.0.4",
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "react": "19.2.3",
@@ -27,6 +30,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.14",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "^56.0.4",
     "typescript": "~6.0.3"
   },
   "private": true

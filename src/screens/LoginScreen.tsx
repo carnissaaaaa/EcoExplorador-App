@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -9,9 +9,11 @@ import {
   Platform,
   Animated,
   Easing,
-  Modal
+  Modal,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../contexts/AuthContext';
 
 // Definindo a família de fonte ideal com base na plataforma (Web, iOS, Android)
 const customFont = Platform.OS === 'web' 
@@ -19,19 +21,22 @@ const customFont = Platform.OS === 'web'
   : (Platform.OS === 'ios' ? 'Avenir Next' : 'sans-serif-medium');
 
 export function LoginScreen({ navigation }: any) {
-  const [email, setEmail] = useState('');
+  const { signIn, signUp } = useAuth();
+  const [email, setEmail] = useState(''); // Representa o campo de usuário (Username)
   const [senha, setSenha] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Estados para o Modal de erro e info
   const [errorVisible, setErrorVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [infoVisible, setInfoVisible] = useState(false);
   const [forgotVisible, setForgotVisible] = useState(false);
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
-  const floatAnim1 = useRef(new Animated.Value(0)).current;
-  const floatAnim2 = useRef(new Animated.Value(0)).current;
+  const [fadeAnim] = useState(() => new Animated.Value(0));
+  const [slideAnim] = useState(() => new Animated.Value(50));
+  const [floatAnim1] = useState(() => new Animated.Value(0));
+  const [floatAnim2] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     Animated.parallel([
@@ -69,32 +74,43 @@ export function LoginScreen({ navigation }: any) {
 
     createFloatingAnimation(floatAnim1, 4000, -20).start();
     createFloatingAnimation(floatAnim2, 5000, 30).start();
-  }, []);
+  }, [fadeAnim, slideAnim, floatAnim1, floatAnim2]);
 
-  const handleLogin = () => {
-    if (!email || !senha) {
-      setErrorMessage('Por favor, preencha o e-mail e a senha.');
+  const handleAuthAction = async () => {
+    if (!email.trim() || !senha) {
+      setErrorMessage('Por favor, preencha o usuário e a senha.');
       setErrorVisible(true);
       return;
     }
 
-    // Regex para validar e-mail: permite letras, números, pontos e underlines antes do @
-    const emailRegex = /^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      setErrorMessage('Formato de e-mail inválido.\n\nSiga o padrão: aluno@exemplo.com\n\n(Apenas letras, números, pontos e underlines são permitidos)');
+    if (email.trim().length < 3) {
+      setErrorMessage('O usuário deve conter pelo menos 3 caracteres.');
       setErrorVisible(true);
       return;
     }
 
-    // Regras de senha: min 6 chars, 1 maiúscula, 1 minúscula, 1 número
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    // Regras de senha padrão Django (min 8 chars, 1 maiúscula, 1 minúscula, 1 número)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(senha)) {
       setErrorMessage('A senha não atende aos requisitos mínimos de segurança.\n\nClique no botão "?" ao lado do campo "Senha" para ver as regras.');
       setErrorVisible(true);
       return;
     }
 
-    navigation.navigate('Home');
+    try {
+      setIsSubmitting(true);
+      if (isRegistering) {
+        await signUp(email.trim(), senha);
+      } else {
+        await signIn(email.trim(), senha);
+      }
+      // O redirecionamento é feito de forma automática pela re-renderização condicional no App.tsx
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Ocorreu um erro ao realizar a operação.');
+      setErrorVisible(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -110,19 +126,23 @@ export function LoginScreen({ navigation }: any) {
         { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
       ]}>
         <View style={styles.card}>
-          <Text style={styles.title}>EcoExplorador</Text>
-          <Text style={styles.subtitle}>Descubra a biodiversidade do Brasil</Text>
+          <Text style={styles.title}>
+            {isRegistering ? 'Criar Conta' : 'EcoExplorador'}
+          </Text>
+          <Text style={styles.subtitle}>
+            {isRegistering ? 'Cadastre-se para iniciar a exploração' : 'Descubra a biodiversidade do Brasil'}
+          </Text>
           
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>E-mail</Text>
+            <Text style={styles.label}>Usuário</Text>
             <TextInput
               style={styles.input}
-              placeholder="Digite seu e-mail"
+              placeholder="Digite seu nome de usuário"
               placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              editable={!isSubmitting}
             />
           </View>
 
@@ -141,6 +161,7 @@ export function LoginScreen({ navigation }: any) {
                 secureTextEntry={!showPassword}
                 value={senha}
                 onChangeText={setSenha}
+                editable={!isSubmitting}
               />
               <TouchableOpacity 
                 style={styles.showPasswordButton}
@@ -156,12 +177,35 @@ export function LoginScreen({ navigation }: any) {
             </View>
           </View>
           
-          <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => setForgotVisible(true)}>
-            <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
+          {!isRegistering && (
+            <TouchableOpacity style={styles.forgotPasswordButton} onPress={() => setForgotVisible(true)}>
+              <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity 
+            style={[styles.button, isSubmitting && { opacity: 0.8 }]} 
+            onPress={handleAuthAction} 
+            activeOpacity={0.8}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.buttonText}>
+                {isRegistering ? 'Cadastrar e Entrar' : 'Iniciar Exploração'}
+              </Text>
+            )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin} activeOpacity={0.8}>
-            <Text style={styles.buttonText}>Iniciar Exploração</Text>
+          <TouchableOpacity 
+            style={styles.toggleRegisterButton} 
+            onPress={() => setIsRegistering(!isRegistering)}
+            disabled={isSubmitting}
+          >
+            <Text style={styles.toggleRegisterText}>
+              {isRegistering ? 'Já tem uma conta? Fazer Login' : 'Não tem uma conta? Cadastre-se'}
+            </Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -206,7 +250,7 @@ export function LoginScreen({ navigation }: any) {
             </View>
             <Text style={styles.modalTitle}>Regras da Senha</Text>
             <Text style={[styles.modalText, { textAlign: 'left', lineHeight: 28 }]}>
-              • Mínimo de 6 caracteres{'\n'}
+              • Mínimo de 8 caracteres{'\n'}
               • Pelo menos 1 letra maiúscula{'\n'}
               • Pelo menos 1 letra minúscula{'\n'}
               • Pelo menos 1 número
@@ -253,6 +297,7 @@ export function LoginScreen({ navigation }: any) {
     </KeyboardAvoidingView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -485,5 +530,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 1,
+  },
+  toggleRegisterButton: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  toggleRegisterText: {
+    fontFamily: customFont,
+    color: '#34D399',
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
